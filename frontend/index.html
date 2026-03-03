@@ -98,8 +98,7 @@
   </div>
 
   <script>
-    const ws = new WebSocket("ws://localhost:8000/ws/chat");
-    const chat = document.getElementById("chat");
+    const ws = new WebSocket("wss://nlpassignment2-production.up.railway.app/ws/chat");    const chat = document.getElementById("chat");
     let botBubble = null;
 
     ws.onopen = () => addBubble("bot", "Hi! I'm ShopEasy's support assistant. How can I help you today?");
