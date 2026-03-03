@@ -46,4 +46,5 @@ async def chat_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         delete_session(session_id)
     except Exception as e:
+        print(f"ERROR: {e}", flush=True)  # ADD THIS LINE
         await websocket.send_text(json.dumps({"type": "error", "content": str(e)}))
