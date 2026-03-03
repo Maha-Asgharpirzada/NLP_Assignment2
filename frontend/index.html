@@ -1,0 +1,152 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>ShopEasy Support</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; }
+    #chat { height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 8px; }
+    .user { text-align: right; color: #0070f3; margin: 8px 0; }
+    .bot { text-align: left; color: #333; margin: 8px 0; }
+    #input-row { display: flex; gap: 8px; margin-top: 12px; }
+    input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    button { padding: 10px 16px; border-radius: 6px; border: none; background: #0070f3; color: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>🛒 ShopEasy Customer Support</h2>
+  <div id="chat"></div>
+  <div id="input-row">
+    <input id="msg" placeholder="Type your message..." onkeydown="if(event.key==='Enter') send()"/>
+    <button onclick="send()">Send</button>
+    <button onclick="reset()" style="background:#e00">Reset</button>
+  </div>
+
+  <script>
+    const ws = new WebSocket("ws://localhost:8000/ws/chat");
+    let botDiv = null;
+
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.type === "token") {
+        if (!botDiv) {
+          botDiv = document.createElement("div");
+          botDiv.className = "bot";
+          document.getElementById("chat").appendChild(botDiv);
+        }
+        botDiv.textContent += data.content;
+        document.getElementById("chat").scrollTop = 9999;
+      } else if (data.type === "done") {
+        botDiv = null;
+      }
+    };
+
+    function send() {
+      const msg = document.getElementById("msg").value.trim();
+      if (!msg) return;
+      const chat = document.getElementById("chat");
+      const userDiv = document.createElement("div");
+      userDiv.className = "user";
+      userDiv.textContent = msg;
+      chat.appendChild(userDiv);
+      ws.send(JSON.stringify({ message: msg }));
+      document.getElementById("msg").value = "";
+    }
+
+    function reset() {
+      ws.send(JSON.stringify({ reset: true }));
+      document.getElementById("chat").innerHTML = "";
+    }
+  </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ShopEasy Support</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .container { width: 680px; height: 90vh; background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+    .header { background: #0070f3; color: white; padding: 18px 24px; font-size: 18px; font-weight: 600; }
+    .header span { font-size: 13px; font-weight: 400; opacity: 0.8; display: block; }
+    #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+    .user { background: #0070f3; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bot { background: #f0f2f5; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .footer { padding: 16px; border-top: 1px solid #eee; display: flex; gap: 10px; }
+    input { flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 24px; font-size: 14px; outline: none; }
+    input:focus { border-color: #0070f3; }
+    button { padding: 12px 20px; border: none; border-radius: 24px; font-size: 14px; cursor: pointer; }
+    #sendBtn { background: #0070f3; color: white; }
+    #resetBtn { background: #f0f2f5; color: #666; }
+    .typing { opacity: 0.5; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      🛒 ShopEasy Customer Support
+      <span>Powered by local AI — ask about orders, returns, and products</span>
+    </div>
+    <div id="chat"></div>
+    <div class="footer">
+      <input id="msg" placeholder="Type your message..." onkeydown="if(event.key==='Enter') send()" />
+      <button id="sendBtn" onclick="send()">Send</button>
+      <button id="resetBtn" onclick="reset()">New Chat</button>
+    </div>
+  </div>
+
+  <script>
+    const ws = new WebSocket("ws://localhost:8000/ws/chat");
+    const chat = document.getElementById("chat");
+    let botBubble = null;
+
+    ws.onopen = () => addBubble("bot", "Hi! I'm ShopEasy's support assistant. How can I help you today?");
+
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.type === "token") {
+        if (!botBubble) {
+          botBubble = document.createElement("div");
+          botBubble.className = "bubble bot";
+          chat.appendChild(botBubble);
+        }
+        botBubble.textContent += data.content;
+        chat.scrollTop = chat.scrollHeight;
+      } else if (data.type === "done") {
+        botBubble = null;
+        document.getElementById("sendBtn").disabled = false;
+      } else if (data.type === "reset") {
+        chat.innerHTML = "";
+        addBubble("bot", "New session started. How can I help you?");
+      } else if (data.type === "error") {
+        addBubble("bot", "Sorry, something went wrong. Please try again.");
+        document.getElementById("sendBtn").disabled = false;
+      }
+    };
+
+    function addBubble(role, text) {
+      const div = document.createElement("div");
+      div.className = `bubble ${role}`;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function send() {
+      const input = document.getElementById("msg");
+      const msg = input.value.trim();
+      if (!msg || !document.getElementById("sendBtn").enabled === false) return;
+      addBubble("user", msg);
+      ws.send(JSON.stringify({ message: msg }));
+      input.value = "";
+      document.getElementById("sendBtn").disabled = true;
+    }
+
+    function reset() {
+      ws.send(JSON.stringify({ reset: true }));
+    }
+  </script>
+</body>
+</html>

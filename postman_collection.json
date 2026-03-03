@@ -1,0 +1,27 @@
+{
+  "info": {
+    "name": "ShopEasy Chatbot API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/health"
+        }
+      }
+    },
+    {
+      "name": "WebSocket Chat",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "ws://localhost:8000/ws/chat"
+        },
+        "description": "Connect via WebSocket. Send JSON: {\"message\": \"What is your return policy?\"}\n\nTo reset session send: {\"reset\": true}"
+      }
+    }
+  ]
+}
