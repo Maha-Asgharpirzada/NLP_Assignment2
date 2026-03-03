@@ -3,7 +3,8 @@ import json
 import os
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-MODEL_NAME = "qwen/qwen2.5-3b-instruct:free"
+MODEL_NAME = "mistralai/mistral-7b-instruct:free"
+
 
 async def stream_response(messages: list):
     api_key = os.getenv("OPENROUTER_API_KEY")
